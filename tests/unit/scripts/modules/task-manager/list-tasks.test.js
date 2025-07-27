@@ -584,4 +584,89 @@ describe('listTasks', () => {
 			expect(taskIds).toContain(5); // review task
 		});
 	});
+
+	describe('Compact output format', () => {
+		test('should output compact format when outputFormat is compact', async () => {
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+			await listTasks(
+				mockTasksPath,
+				null,
+				null,
+				false,
+				'compact',
+				mockContext
+			);
+
+			expect(consoleSpy).toHaveBeenCalled();
+			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
+			
+			// Should contain compact format elements
+			expect(output).toMatch(/\d+\s+\[.*\]\s+.*\s+\(.*\)/); // ID [status] title (priority)
+			
+			consoleSpy.mockRestore();
+		});
+
+		test('should format single task compactly', async () => {
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+			await listTasks(
+				mockTasksPath,
+				null,
+				null,
+				false,
+				'compact',
+				mockContext
+			);
+
+			expect(consoleSpy).toHaveBeenCalled();
+			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
+			
+			// Should be compact (no verbose headers)
+			expect(output).not.toContain('Project Dashboard');
+			expect(output).not.toContain('Progress:');
+			
+			consoleSpy.mockRestore();
+		});
+
+		test('should handle compact format with subtasks', async () => {
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+			await listTasks(
+				mockTasksPath,
+				null,
+				null,
+				true, // withSubtasks = true
+				'compact',
+				mockContext
+			);
+
+			expect(consoleSpy).toHaveBeenCalled();
+			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
+			
+			// Should handle both tasks and subtasks
+			expect(output).toMatch(/\d+\s+\[.*\]/); // Regular task
+			expect(output).toMatch(/\s+\d+\.\d+\s+\[.*\]/); // Subtask with indentation
+			
+			consoleSpy.mockRestore();
+		});
+
+		test('should handle empty task list in compact format', async () => {
+			mockReadJSON.mockReturnValue({ tasks: [] });
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+			await listTasks(
+				mockTasksPath,
+				null,
+				null,
+				false,
+				'compact',
+				mockContext
+			);
+
+			expect(consoleSpy).toHaveBeenCalledWith('No tasks found');
+			
+			consoleSpy.mockRestore();
+		});
+	});
 });
