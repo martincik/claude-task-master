@@ -294,6 +294,11 @@ function listTasks(
 			});
 		}
 
+		// For compact output, return minimal one-line format
+		if (outputFormat === 'compact') {
+			return renderCompactOutput(filteredTasks, withSubtasks);
+		}
+
 		// ... existing code for text output ...
 
 		// Calculate status breakdowns as percentages of total
@@ -960,6 +965,99 @@ function generateMarkdownOutput(data, filteredTasks, stats) {
 	});
 
 	return markdown;
+}
+
+/**
+ * Format a single task in compact one-line format
+ * @param {Object} task - Task object
+ * @param {number} maxTitleLength - Maximum title length before truncation
+ * @returns {string} - Formatted task line
+ */
+function formatCompactTask(task, maxTitleLength = 50) {
+	const status = task.status || 'pending';
+	const priority = task.priority || 'medium';
+	const title = truncate(task.title || 'Untitled', maxTitleLength);
+	
+	// Use colored status from existing function
+	const coloredStatus = getStatusWithColor(status, true);
+	
+	// Color priority based on level
+	const priorityColors = {
+		high: chalk.red,
+		medium: chalk.yellow,
+		low: chalk.gray
+	};
+	const priorityColor = priorityColors[priority] || chalk.white;
+	
+	// Format dependencies
+	let depsText = '';
+	if (task.dependencies && task.dependencies.length > 0) {
+		if (task.dependencies.length > 5) {
+			const visible = task.dependencies.slice(0, 5).join(',');
+			const remaining = task.dependencies.length - 5;
+			depsText = ` → ${chalk.cyan(visible)}${chalk.gray('... (+' + remaining + ' more)')}`;
+		} else {
+			depsText = ` → ${chalk.cyan(task.dependencies.join(','))}`;
+		}
+	}
+	
+	return `${chalk.cyan(task.id)} ${coloredStatus} ${chalk.white(title)} ${priorityColor('(' + priority + ')')}${depsText}`;
+}
+
+/**
+ * Format a subtask in compact format with indentation
+ * @param {Object} subtask - Subtask object
+ * @param {string|number} parentId - Parent task ID
+ * @param {number} maxTitleLength - Maximum title length before truncation
+ * @returns {string} - Formatted subtask line
+ */
+function formatCompactSubtask(subtask, parentId, maxTitleLength = 47) {
+	const status = subtask.status || 'pending';
+	const title = truncate(subtask.title || 'Untitled', maxTitleLength);
+	
+	// Use colored status from existing function
+	const coloredStatus = getStatusWithColor(status, true);
+	
+	// Format dependencies
+	let depsText = '';
+	if (subtask.dependencies && subtask.dependencies.length > 0) {
+		if (subtask.dependencies.length > 5) {
+			const visible = subtask.dependencies.slice(0, 5).join(',');
+			const remaining = subtask.dependencies.length - 5;
+			depsText = ` → ${chalk.cyan(visible)}${chalk.gray('... (+' + remaining + ' more)')}`;
+		} else {
+			depsText = ` → ${chalk.cyan(subtask.dependencies.join(','))}`;
+		}
+	}
+	
+	return `  ${chalk.cyan(parentId + '.' + subtask.id)} ${coloredStatus} ${chalk.dim(title)}${depsText}`;
+}
+
+/**
+ * Render complete compact output
+ * @param {Array} filteredTasks - Tasks to display
+ * @param {boolean} withSubtasks - Whether to include subtasks
+ * @returns {void} - Outputs directly to console
+ */
+function renderCompactOutput(filteredTasks, withSubtasks) {
+	if (filteredTasks.length === 0) {
+		console.log('No tasks found');
+		return;
+	}
+	
+	const output = [];
+	
+	filteredTasks.forEach((task) => {
+		output.push(formatCompactTask(task));
+		
+		if (withSubtasks && task.subtasks && task.subtasks.length > 0) {
+			task.subtasks.forEach((subtask) => {
+				output.push(formatCompactSubtask(subtask, task.id));
+			});
+		}
+	});
+	
+	console.log(output.join('\n'));
 }
 
 export default listTasks;
