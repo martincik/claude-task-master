@@ -668,5 +668,58 @@ describe('listTasks', () => {
 			
 			consoleSpy.mockRestore();
 		});
+
+		test('should format dependencies correctly with shared helper', async () => {
+			// Create mock tasks with various dependency scenarios
+			const tasksWithDeps = {
+				tasks: [
+					{
+						id: 1,
+						title: 'Task with no dependencies',
+						status: 'pending',
+						priority: 'medium',
+						dependencies: []
+					},
+					{
+						id: 2,
+						title: 'Task with few dependencies',
+						status: 'pending',
+						priority: 'high',
+						dependencies: [1, 3]
+					},
+					{
+						id: 3,
+						title: 'Task with many dependencies',
+						status: 'pending',
+						priority: 'low',
+						dependencies: [1, 2, 4, 5, 6, 7, 8, 9]
+					}
+				]
+			};
+
+			mockReadJSON.mockReturnValue(tasksWithDeps);
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+			await listTasks(
+				mockTasksPath,
+				null,
+				null,
+				false,
+				'compact',
+				mockContext
+			);
+
+			expect(consoleSpy).toHaveBeenCalled();
+			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
+			
+			// Should not show dependencies for task with empty deps
+			expect(output).toContain('1 [pending] Task with no dependencies (medium)');
+			// Should show all dependencies for few deps
+			expect(output).toMatch(/2.*→.*1,3/);
+			// Should truncate many dependencies
+			expect(output).toMatch(/3.*→.*1,2,4,5,6.*\(\+3 more\)/);
+			
+			consoleSpy.mockRestore();
+		});
 	});
 });

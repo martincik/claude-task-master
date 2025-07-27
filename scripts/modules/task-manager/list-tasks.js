@@ -968,6 +968,25 @@ function generateMarkdownOutput(data, filteredTasks, stats) {
 }
 
 /**
+ * Format dependencies for compact output with truncation and coloring
+ * @param {Array} dependencies - Array of dependency IDs
+ * @returns {string} - Formatted dependency string with arrow prefix
+ */
+function formatCompactDependencies(dependencies) {
+	if (!dependencies || dependencies.length === 0) {
+		return '';
+	}
+	
+	if (dependencies.length > 5) {
+		const visible = dependencies.slice(0, 5).join(',');
+		const remaining = dependencies.length - 5;
+		return ` → ${chalk.cyan(visible)}${chalk.gray('... (+' + remaining + ' more)')}`;
+	} else {
+		return ` → ${chalk.cyan(dependencies.join(','))}`;
+	}
+}
+
+/**
  * Format a single task in compact one-line format
  * @param {Object} task - Task object
  * @param {number} maxTitleLength - Maximum title length before truncation
@@ -989,17 +1008,8 @@ function formatCompactTask(task, maxTitleLength = 50) {
 	};
 	const priorityColor = priorityColors[priority] || chalk.white;
 	
-	// Format dependencies
-	let depsText = '';
-	if (task.dependencies && task.dependencies.length > 0) {
-		if (task.dependencies.length > 5) {
-			const visible = task.dependencies.slice(0, 5).join(',');
-			const remaining = task.dependencies.length - 5;
-			depsText = ` → ${chalk.cyan(visible)}${chalk.gray('... (+' + remaining + ' more)')}`;
-		} else {
-			depsText = ` → ${chalk.cyan(task.dependencies.join(','))}`;
-		}
-	}
+	// Format dependencies using shared helper
+	const depsText = formatCompactDependencies(task.dependencies);
 	
 	return `${chalk.cyan(task.id)} ${coloredStatus} ${chalk.white(title)} ${priorityColor('(' + priority + ')')}${depsText}`;
 }
@@ -1018,17 +1028,8 @@ function formatCompactSubtask(subtask, parentId, maxTitleLength = 47) {
 	// Use colored status from existing function
 	const coloredStatus = getStatusWithColor(status, true);
 	
-	// Format dependencies
-	let depsText = '';
-	if (subtask.dependencies && subtask.dependencies.length > 0) {
-		if (subtask.dependencies.length > 5) {
-			const visible = subtask.dependencies.slice(0, 5).join(',');
-			const remaining = subtask.dependencies.length - 5;
-			depsText = ` → ${chalk.cyan(visible)}${chalk.gray('... (+' + remaining + ' more)')}`;
-		} else {
-			depsText = ` → ${chalk.cyan(subtask.dependencies.join(','))}`;
-		}
-	}
+	// Format dependencies using shared helper
+	const depsText = formatCompactDependencies(subtask.dependencies);
 	
 	return `  ${chalk.cyan(parentId + '.' + subtask.id)} ${coloredStatus} ${chalk.dim(title)}${depsText}`;
 }
