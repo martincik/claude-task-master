@@ -588,14 +588,15 @@ describe('listTasks', () => {
 	describe('Compact output format', () => {
 		test('should output compact format when outputFormat is compact', async () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+			const tasksPath = 'tasks/tasks.json';
 
 			await listTasks(
-				mockTasksPath,
+				tasksPath,
 				null,
 				null,
 				false,
 				'compact',
-				mockContext
+				{ tag: 'master' }
 			);
 
 			expect(consoleSpy).toHaveBeenCalled();
@@ -609,14 +610,15 @@ describe('listTasks', () => {
 
 		test('should format single task compactly', async () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+			const tasksPath = 'tasks/tasks.json';
 
 			await listTasks(
-				mockTasksPath,
+				tasksPath,
 				null,
 				null,
 				false,
 				'compact',
-				mockContext
+				{ tag: 'master' }
 			);
 
 			expect(consoleSpy).toHaveBeenCalled();
@@ -631,14 +633,15 @@ describe('listTasks', () => {
 
 		test('should handle compact format with subtasks', async () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+			const tasksPath = 'tasks/tasks.json';
 
 			await listTasks(
-				mockTasksPath,
+				tasksPath,
 				null,
 				null,
 				true, // withSubtasks = true
 				'compact',
-				mockContext
+				{ tag: 'master' }
 			);
 
 			expect(consoleSpy).toHaveBeenCalled();
@@ -652,16 +655,17 @@ describe('listTasks', () => {
 		});
 
 		test('should handle empty task list in compact format', async () => {
-			mockReadJSON.mockReturnValue({ tasks: [] });
+			readJSON.mockReturnValue({ tasks: [] });
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+			const tasksPath = 'tasks/tasks.json';
 
 			await listTasks(
-				mockTasksPath,
+				tasksPath,
 				null,
 				null,
 				false,
 				'compact',
-				mockContext
+				{ tag: 'master' }
 			);
 
 			expect(consoleSpy).toHaveBeenCalledWith('No tasks found');
@@ -697,16 +701,17 @@ describe('listTasks', () => {
 				]
 			};
 
-			mockReadJSON.mockReturnValue(tasksWithDeps);
+			readJSON.mockReturnValue(tasksWithDeps);
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+			const tasksPath = 'tasks/tasks.json';
 
 			await listTasks(
-				mockTasksPath,
+				tasksPath,
 				null,
 				null,
 				false,
 				'compact',
-				mockContext
+				{ tag: 'master' }
 			);
 
 			expect(consoleSpy).toHaveBeenCalled();
