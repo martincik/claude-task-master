@@ -597,8 +597,8 @@ describe('listTasks', () => {
 			expect(consoleSpy).toHaveBeenCalled();
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
 
-			// Should contain compact format elements
-			expect(output).toMatch(/\d+\s+\[.*\]\s+.*\s+\(.*\)/); // ID [status] title (priority)
+			// Should contain compact format elements: ID status_with_icon title (priority)
+			expect(output).toMatch(/\d+\s+\S+\s+\w+.*\s+\(.*\)/); // ID status title (priority)
 
 			consoleSpy.mockRestore();
 		});
@@ -638,8 +638,8 @@ describe('listTasks', () => {
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
 
 			// Should handle both tasks and subtasks
-			expect(output).toMatch(/\d+\s+\[.*\]/); // Regular task
-			expect(output).toMatch(/\s+\d+\.\d+\s+\[.*\]/); // Subtask with indentation
+			expect(output).toMatch(/\d+\s+\S+\s+\w+/); // Regular task: ID status_icon title
+			expect(output).toMatch(/\s+\d+\.\d+\s+\S+\s+\w+/); // Subtask with indentation
 
 			consoleSpy.mockRestore();
 		});
@@ -698,8 +698,8 @@ describe('listTasks', () => {
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
 
 			// Should not show dependencies for task with empty deps
-			expect(output).toContain(
-				'1 [pending] Task with no dependencies (medium)'
+			expect(output).toMatch(
+				/1\s+.*pending.*Task with no dependencies.*\(medium\)/
 			);
 			// Should show all dependencies for few deps
 			expect(output).toMatch(/2.*→.*1,3/);
