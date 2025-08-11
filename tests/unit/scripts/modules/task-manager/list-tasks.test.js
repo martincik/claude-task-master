@@ -590,21 +590,16 @@ describe('listTasks', () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 			const tasksPath = 'tasks/tasks.json';
 
-			await listTasks(
-				tasksPath,
-				null,
-				null,
-				false,
-				'compact',
-				{ tag: 'master' }
-			);
+			await listTasks(tasksPath, null, null, false, 'compact', {
+				tag: 'master'
+			});
 
 			expect(consoleSpy).toHaveBeenCalled();
-			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
-			
+			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+
 			// Should contain compact format elements
 			expect(output).toMatch(/\d+\s+\[.*\]\s+.*\s+\(.*\)/); // ID [status] title (priority)
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -612,22 +607,17 @@ describe('listTasks', () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 			const tasksPath = 'tasks/tasks.json';
 
-			await listTasks(
-				tasksPath,
-				null,
-				null,
-				false,
-				'compact',
-				{ tag: 'master' }
-			);
+			await listTasks(tasksPath, null, null, false, 'compact', {
+				tag: 'master'
+			});
 
 			expect(consoleSpy).toHaveBeenCalled();
-			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
-			
+			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+
 			// Should be compact (no verbose headers)
 			expect(output).not.toContain('Project Dashboard');
 			expect(output).not.toContain('Progress:');
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -645,12 +635,12 @@ describe('listTasks', () => {
 			);
 
 			expect(consoleSpy).toHaveBeenCalled();
-			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
-			
+			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+
 			// Should handle both tasks and subtasks
 			expect(output).toMatch(/\d+\s+\[.*\]/); // Regular task
 			expect(output).toMatch(/\s+\d+\.\d+\s+\[.*\]/); // Subtask with indentation
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -659,17 +649,12 @@ describe('listTasks', () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 			const tasksPath = 'tasks/tasks.json';
 
-			await listTasks(
-				tasksPath,
-				null,
-				null,
-				false,
-				'compact',
-				{ tag: 'master' }
-			);
+			await listTasks(tasksPath, null, null, false, 'compact', {
+				tag: 'master'
+			});
 
 			expect(consoleSpy).toHaveBeenCalledWith('No tasks found');
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -705,25 +690,22 @@ describe('listTasks', () => {
 			const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 			const tasksPath = 'tasks/tasks.json';
 
-			await listTasks(
-				tasksPath,
-				null,
-				null,
-				false,
-				'compact',
-				{ tag: 'master' }
-			);
+			await listTasks(tasksPath, null, null, false, 'compact', {
+				tag: 'master'
+			});
 
 			expect(consoleSpy).toHaveBeenCalled();
-			const output = consoleSpy.mock.calls.map(call => call[0]).join('\n');
-			
+			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+
 			// Should not show dependencies for task with empty deps
-			expect(output).toContain('1 [pending] Task with no dependencies (medium)');
+			expect(output).toContain(
+				'1 [pending] Task with no dependencies (medium)'
+			);
 			// Should show all dependencies for few deps
 			expect(output).toMatch(/2.*→.*1,3/);
 			// Should truncate many dependencies
 			expect(output).toMatch(/3.*→.*1,2,4,5,6.*\(\+3 more\)/);
-			
+
 			consoleSpy.mockRestore();
 		});
 	});

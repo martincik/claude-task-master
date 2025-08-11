@@ -976,7 +976,7 @@ function formatCompactDependencies(dependencies) {
 	if (!dependencies || dependencies.length === 0) {
 		return '';
 	}
-	
+
 	if (dependencies.length > 5) {
 		const visible = dependencies.slice(0, 5).join(',');
 		const remaining = dependencies.length - 5;
@@ -996,10 +996,10 @@ function formatCompactTask(task, maxTitleLength = 50) {
 	const status = task.status || 'pending';
 	const priority = task.priority || 'medium';
 	const title = truncate(task.title || 'Untitled', maxTitleLength);
-	
+
 	// Use colored status from existing function
 	const coloredStatus = getStatusWithColor(status, true);
-	
+
 	// Color priority based on level
 	const priorityColors = {
 		high: chalk.red,
@@ -1007,10 +1007,10 @@ function formatCompactTask(task, maxTitleLength = 50) {
 		low: chalk.gray
 	};
 	const priorityColor = priorityColors[priority] || chalk.white;
-	
+
 	// Format dependencies using shared helper
 	const depsText = formatCompactDependencies(task.dependencies);
-	
+
 	return `${chalk.cyan(task.id)} ${coloredStatus} ${chalk.white(title)} ${priorityColor('(' + priority + ')')}${depsText}`;
 }
 
@@ -1024,13 +1024,13 @@ function formatCompactTask(task, maxTitleLength = 50) {
 function formatCompactSubtask(subtask, parentId, maxTitleLength = 47) {
 	const status = subtask.status || 'pending';
 	const title = truncate(subtask.title || 'Untitled', maxTitleLength);
-	
+
 	// Use colored status from existing function
 	const coloredStatus = getStatusWithColor(status, true);
-	
+
 	// Format dependencies using shared helper
 	const depsText = formatCompactDependencies(subtask.dependencies);
-	
+
 	return `  ${chalk.cyan(parentId + '.' + subtask.id)} ${coloredStatus} ${chalk.dim(title)}${depsText}`;
 }
 
@@ -1045,19 +1045,19 @@ function renderCompactOutput(filteredTasks, withSubtasks) {
 		console.log('No tasks found');
 		return;
 	}
-	
+
 	const output = [];
-	
+
 	filteredTasks.forEach((task) => {
 		output.push(formatCompactTask(task));
-		
+
 		if (withSubtasks && task.subtasks && task.subtasks.length > 0) {
 			task.subtasks.forEach((subtask) => {
 				output.push(formatCompactSubtask(subtask, task.id));
 			});
 		}
 	});
-	
+
 	console.log(output.join('\n'));
 }
 
