@@ -1,5 +1,17 @@
 # task-master-ai
 
+## 0.25.0
+
+### Minor Changes
+
+- [`94f5436`](https://github.com/eyaltoledano/claude-task-master/commit/94f54360a589040d2b05b2a0783b650dc31fc88c) Thanks [@Crunchyman-ralph](https://github.com/Crunchyman-ralph)! - Add compact mode --compact / -c flag to the `tm list` CLI command
+  - outputs tasks in a minimal, git-style one-line format. This reduces verbose output from ~30+ lines of dashboards and tables to just 1 line per task, making it much easier to quickly scan available tasks.
+    - Git-style format: ID STATUS TITLE (PRIORITY) → DEPS
+    - Color-coded status, priority, and dependencies
+    - Smart title truncation and dependency abbreviation
+    - Subtask support with indentation
+    - Full backward compatibility with existing list options
+
 ## 0.24.0
 
 ### Minor Changes

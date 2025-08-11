@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.24.0
+
+### Minor Changes
+
+- [#1100](https://github.com/eyaltoledano/claude-task-master/pull/1100) [`30ca144`](https://github.com/eyaltoledano/claude-task-master/commit/30ca144231c36a6c63911f20adc225d38fb15a2f) Thanks [@vedovelli](https://github.com/vedovelli)! - Display current task ID on task details page
+
+### Patch Changes
+
+- Updated dependencies [[`94f5436`](https://github.com/eyaltoledano/claude-task-master/commit/94f54360a589040d2b05b2a0783b650dc31fc88c)]:
+  - task-master-ai@0.25.0
+
 ## 0.23.1
 
 ### Patch Changes
