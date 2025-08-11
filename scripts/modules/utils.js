@@ -1376,6 +1376,20 @@ function ensureTagMetadata(tagObj, opts = {}) {
 	return tagObj;
 }
 
+/**
+ * Strip ANSI color codes from a string
+ * Useful for testing, logging to files, or when clean text output is needed
+ * @param {string} text - The text that may contain ANSI color codes
+ * @returns {string} - The text with ANSI color codes removed
+ */
+function stripAnsiCodes(text) {
+	if (typeof text !== 'string') {
+		return text;
+	}
+	// Remove ANSI escape sequences (color codes, cursor movements, etc.)
+	return text.replace(/\x1b\[[0-9;]*m/g, '');
+}
+
 // Export all utility functions and configuration
 export {
 	LOG_LEVELS,
@@ -1412,5 +1426,6 @@ export {
 	createStateJson,
 	markMigrationForNotice,
 	flattenTasksWithSubtasks,
-	ensureTagMetadata
+	ensureTagMetadata,
+	stripAnsiCodes
 };

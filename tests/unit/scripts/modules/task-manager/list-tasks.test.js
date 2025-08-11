@@ -22,7 +22,10 @@ jest.unstable_mockModule('../../../../../scripts/modules/utils.js', () => ({
 	),
 	addComplexityToTask: jest.fn(),
 	readComplexityReport: jest.fn(() => null),
-	getTagAwareFilePath: jest.fn((tag, path) => '/mock/tagged/report.json')
+	getTagAwareFilePath: jest.fn((tag, path) => '/mock/tagged/report.json'),
+	stripAnsiCodes: jest.fn((text) =>
+		text ? text.replace(/\x1b\[[0-9;]*m/g, '') : text
+	)
 }));
 
 jest.unstable_mockModule('../../../../../scripts/modules/ui.js', () => ({
@@ -45,8 +48,13 @@ jest.unstable_mockModule(
 );
 
 // Import the mocked modules
-const { readJSON, log, readComplexityReport, addComplexityToTask } =
-	await import('../../../../../scripts/modules/utils.js');
+const {
+	readJSON,
+	log,
+	readComplexityReport,
+	addComplexityToTask,
+	stripAnsiCodes
+} = await import('../../../../../scripts/modules/utils.js');
 const { displayTaskList } = await import(
 	'../../../../../scripts/modules/ui.js'
 );
@@ -596,9 +604,14 @@ describe('listTasks', () => {
 
 			expect(consoleSpy).toHaveBeenCalled();
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+			// Strip ANSI color codes for testing
+			const cleanOutput = stripAnsiCodes(output);
 
-			// Should contain compact format elements: ID status_with_icon title (priority)
-			expect(output).toMatch(/\d+\s+\S+\s+\w+.*\s+\(.*\)/); // ID status title (priority)
+			// Should contain compact format elements: ID status title (priority) [→ dependencies]
+			expect(cleanOutput).toContain('1 done Setup Project (high)');
+			expect(cleanOutput).toContain(
+				'2 pending Implement Core Features (high) → 1'
+			);
 
 			consoleSpy.mockRestore();
 		});
@@ -636,10 +649,12 @@ describe('listTasks', () => {
 
 			expect(consoleSpy).toHaveBeenCalled();
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+			// Strip ANSI color codes for testing
+			const cleanOutput = stripAnsiCodes(output);
 
 			// Should handle both tasks and subtasks
-			expect(output).toMatch(/\d+\s+\S+\s+\w+/); // Regular task: ID status_icon title
-			expect(output).toMatch(/\s+\d+\.\d+\s+\S+\s+\w+/); // Subtask with indentation
+			expect(cleanOutput).toContain('1 done Setup Project (high)');
+			expect(cleanOutput).toContain('3.1 done Create Header Component');
 
 			consoleSpy.mockRestore();
 		});
@@ -696,15 +711,19 @@ describe('listTasks', () => {
 
 			expect(consoleSpy).toHaveBeenCalled();
 			const output = consoleSpy.mock.calls.map((call) => call[0]).join('\n');
+			// Strip ANSI color codes for testing
+			const cleanOutput = stripAnsiCodes(output);
 
-			// Should not show dependencies for task with empty deps
-			expect(output).toMatch(
-				/1\s+.*pending.*Task with no dependencies.*\(medium\)/
+			// Should format tasks correctly with compact output including priority
+			expect(cleanOutput).toContain(
+				'1 pending Task with no dependencies (medium)'
 			);
-			// Should show all dependencies for few deps
-			expect(output).toMatch(/2.*→.*1,3/);
-			// Should truncate many dependencies
-			expect(output).toMatch(/3.*→.*1,2,4,5,6.*\(\+3 more\)/);
+			expect(cleanOutput).toContain('Task with few dependencies');
+			expect(cleanOutput).toContain('Task with many dependencies');
+			// Should show dependencies with arrow when they exist
+			expect(cleanOutput).toMatch(/2.*→.*1,3/);
+			// Should truncate many dependencies with "+X more" format
+			expect(cleanOutput).toMatch(/3.*→.*1,2,4,5,6.*\(\+\d+ more\)/);
 
 			consoleSpy.mockRestore();
 		});
